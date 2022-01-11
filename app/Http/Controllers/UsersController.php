@@ -26,7 +26,7 @@ class UsersController extends Controller
         if(!$user->active){
             return response()->json(['message'=>'Your account is deactivated.'],422);
         }
-        if(\Helper::decrypt($user->password)!=$request->password){
+        if(!\Helper::validateEncrypt($user->password,$request->password)){
             return response()->json(['message'=>'Invalid login credentials.'],422);
         }
         $token = $user->createToken(env('SANCTUM_TOKEN'))->plainTextToken;

@@ -58,6 +58,11 @@ class Common{
         $encryptedText = bin2hex($openMode);
         return $encryptedText;
     }
+
+    public static function validateEncrypt($encrypted,$plainText){
+        if(self::decrypt($encrypted)==$plainText) return true;
+        return false;
+    }
     
     public static function decrypt($encryptedText) {
         $key=env('PASSWORD_KEY');

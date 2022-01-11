@@ -19,9 +19,10 @@ class RechargeController extends Controller
             'lat_lon' => 'required',
         ]);
 
-        do {
-            $txnid = 'REG'.round(microtime(true)*1000);
-        } while (Report::where("txnid", "=", $txnid)->first() instanceof Report);
+        // do {
+        //     $txnid = 'REG'.round(microtime(true)*1000);
+        // } while (Report::where("txnid", "=", $txnid)->first() instanceof Report);
+        $txnid = 'REG'.round(microtime(true)*1000);
         $rData['txnid'] = $txnid;
         $user = auth()->user();
 
