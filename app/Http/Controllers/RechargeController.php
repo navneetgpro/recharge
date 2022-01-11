@@ -69,7 +69,7 @@ class RechargeController extends Controller
             'apitxncode'=>$apitxn,
             'messgae'=>'recharge Failed'
         ];
-        return response()->json($reponseSuccess);
+        return response()->json($reponsefailed);
     }
     public function mitrarehcharge(){
         $apitxn = 'mitra'.time();
