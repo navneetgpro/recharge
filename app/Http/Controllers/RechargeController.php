@@ -28,7 +28,7 @@ class RechargeController extends Controller
         $response = RechargeRepository::apisRequest($rData);
 
         $discounted = \Helper::pctDiscount($request->amount,$user->level->instant_commission);
-        $userWalletuse = RechargeRepository::useUserWallet($discounted->amount,$user);
+        $userWalletuse = RechargeRepository::useUserWallet($discounted->amount,$user,true);
         $reportArr = [
             'phone'=>$request->phone,
             'operator_id'=>$request->operator_id,
@@ -38,7 +38,7 @@ class RechargeController extends Controller
             'total_amount'=>$request->amount,
             'paid_amount'=>$userWalletuse->paidAmount,
             'instant_commission'=>$discounted->discount,
-            'wallet_used'=>$userWalletuse->userwallet,
+            'wallet_used'=>$userWalletuse->deduct,
             'apitxnid'=>$response->apitxnid,
             'status'=>$response->status,
             'product'=>$request->type,

@@ -87,11 +87,19 @@ class RechargeRepository
         \App\Models\Commission::create(['user_id'=>$user->id,'report_id'=>$report->id,'type'=>'refund','amount'=>$refundAmount,'initiate'=>1]);
     }
 
-    public function useUserWallet($instentDiscount,$user){
+
+    public function useUserWallet($discountAmount,$user,$deduct=false){
         // cut wallet balance from user account and give discount
         $userWallet = $user->wallet;
-        $tol = ($instentDiscount-$userWallet);
-        $user->decrement('wallet',$userWallet);
-        return (Object) ['paidAmount'=>$tol,'userwallet'=>$userWallet];
+        if($userWallet<=$discountAmount){
+            $paid = ($discountAmount-$userWallet);
+            $walletDeduct = $userWallet;
+        }else{
+            $paid = 0;
+            $walletDeduct = $discountAmount;
+        }
+
+        if($deduct) $user->decrement('wallet',$walletDeduct);
+        return (Object) ['paidAmount'=>$paid,'deduct'=>$walletDeduct];
     }
 }
