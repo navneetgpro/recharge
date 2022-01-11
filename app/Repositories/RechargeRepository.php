@@ -75,18 +75,21 @@ class RechargeRepository
         $directreferCommison = \Helper::pctDiscount($report->total_amount,$user->level->direct_commission,false);
         $indirectreferCommison = \Helper::pctDiscount($report->total_amount,$user->level->indirect_commission,false);
         \App\Models\User::where('id',$user->directrefer_id)->increment('wallet',$directreferCommison);
+        self::commisionManager('direct',$directreferCommison,$user,$report);
         \App\Models\User::where('id',$user->indirectrefer_id)->increment('wallet',$indirectreferCommison);
-        \App\Models\Commission::create(['user_id'=>$user->id,'report_id'=>$report->id,'type'=>'direct','amount'=>$directreferCommison,'initiate'=>1]);
-        \App\Models\Commission::create(['user_id'=>$user->id,'report_id'=>$report->id,'type'=>'indirect','amount'=>$indirectreferCommison,'initiate'=>1]);
+        self::commisionManager('indirect',$indirectreferCommison,$user,$report);
     }
 
     public function rechargeRefund($user,$report){
         // refund used recharge amount to user wallet
         $refundAmount = $report->paid_amount+$report->wallet_used;
         $user->increment('wallet',$refundAmount);
-        \App\Models\Commission::create(['user_id'=>$user->id,'report_id'=>$report->id,'type'=>'refund','amount'=>$refundAmount,'initiate'=>1]);
+        self::commisionManager('refund',$refundAmount,$user,$report);
     }
 
+    public function commisionManager($type,$amount,$user,$report){
+        \App\Models\Commission::create(['user_id'=>$user->id,'report_id'=>$report->id,'type'=>$type,'amount'=>$amount,'initiate'=>1]);
+    }
 
     public function useUserWallet($discountAmount,$user,$deduct=false){
         // cut wallet balance from user account and give discount
