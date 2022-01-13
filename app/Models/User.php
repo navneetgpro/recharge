@@ -61,6 +61,6 @@ class User extends Authenticatable
     }
 
     public function level(){
-        return $this->belongsTo('App\Models\Level');
+        return $this->belongsTo(Level::class);
     }
 }

@@ -29,6 +29,8 @@ Route::group(['middleware'=>'auth:sanctum'],function(){
 Route::get('/mitrarehcharge', 'RechargeController@mitrarehcharge');
 Route::get('/securerehcharge', 'RechargeController@securerehcharge');
 
+// callback api
+Route::any('/callback/{api}', 'ApisController@callback');
 
 // extra routes
 Route::get('unauthorized', function() {

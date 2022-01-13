@@ -41,7 +41,6 @@ class RechargeController extends Controller
             'instant_commission'=>$discounted->discount,
             'wallet_used'=>$userWalletuse->deduct,
             'apitxnid'=>$response->apitxnid,
-            'status'=>$response->status,
             'product'=>$request->type,
             'lat_lon'=>$request->lat_lon
         ];
@@ -49,10 +48,10 @@ class RechargeController extends Controller
             $reportArr['number']=$request->number;
         }
         $report = Report::create($reportArr);
-        if($report->status=="success"){
-            RechargeRepository::ifRechargeSuccess($user,$report);
-        }elseif($report->status=="failed"){
-            RechargeRepository::ifRechargefail($user,$report);
+        if($response->status == "success"){
+            RechargeRepository::ifRechargeSuccess($report,$user);
+        }elseif($response->status == "failed"){
+            RechargeRepository::ifRechargefail($report,$user);
         }
         return response()->json($report);
     }

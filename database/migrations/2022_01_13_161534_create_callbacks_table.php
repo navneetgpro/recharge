@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateApilogsTable extends Migration
+class CreateCallbacksTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,9 @@ class CreateApilogsTable extends Migration
      */
     public function up()
     {
-        Schema::create('apilogs', function (Blueprint $table) {
+        Schema::create('callbacks', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('api_id');
-            $table->string('txnid',20);
-            $table->enum('status', ['pending','success','failed'])->default('pending');
-            $table->unsignedInteger('callback')->default(0);
+            $table->unsignedBigInteger('apilog_id');
             $table->longText('response');
             $table->timestamps();
         });
@@ -31,6 +28,6 @@ class CreateApilogsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('apilogs');
+        Schema::dropIfExists('callbacks');
     }
 }

@@ -17,8 +17,8 @@ class CreateOperatorsTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('short_name');
-            $table->string('code1');
-            $table->string('code2');
+            $table->string('code1')->nullable();
+            $table->string('code2')->nullable();
             $table->enum('product', ['mobile','dth']);
             $table->boolean('active')->default(1);
             $table->timestamps();

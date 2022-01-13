@@ -32,7 +32,7 @@ class RechargeRepository
                 $response = self::reponseOutput($api,json_decode($request['response']));
                 $return['status'] = $response->status;
                 $return['apitxnid'] = $response->apitxnid;
-                if($response->status=="success"){
+                if(in_array($response->status,["success","pending"])){
                     break;
                 }
             }
@@ -49,11 +49,23 @@ class RechargeRepository
                 if($response->status=='TXN'){
                     $return['status'] = 'success';
                     $return['apitxnid'] = $response->apitxncode;
+                }elseif($response->status=='TUP'){
+                    $return['status'] = 'pending';
+                    $return['apitxnid'] = $response->apitxncode;
+                }elseif($response->status=='ERR'){
+                    $return['status'] = 'failed';
+                    $return['apitxnid'] = $response->apitxncode;
                 }
                 break;
             case 'securecode':
                 if($response->status=='TXN'){
                     $return['status'] = 'success';
+                    $return['apitxnid'] = $response->apitxncode;
+                }elseif($response->status=='TUP'){
+                    $return['status'] = 'pending';
+                    $return['apitxnid'] = $response->apitxncode;
+                }elseif($response->status=='ERR'){
+                    $return['status'] = 'failed';
                     $return['apitxnid'] = $response->apitxncode;
                 }
                 break;
@@ -62,12 +74,31 @@ class RechargeRepository
         return (Object) $return;
     }
 
-    public function ifRechargefail($user,$report){
+    public function ifRechargefail($report,$user=null){
+        if($report->status!='pending' && isset($report->status)) return ;
+        $status = 'failed';
+        if(!$user) $user = \App\Models\User::find($report->user_id);
+        $report->status=$status;
+        if($report->apilog) $report->apilog->status=$status;
+        $report->push();
         self::rechargeRefund($user,$report);
     }
 
-    public function ifRechargeSuccess($user,$report){
+    public function ifRechargeSuccess($report,$user=null){
+        if($report->status!='pending' && isset($report->status)) return ;
+        $status = 'success';
+        if(!$user) $user = \App\Models\User::find($report->user_id);
+        $report->status=$status;
+        $report->apilog->status=$status;
+        $report->push();
         self::giveCommision($user,$report);
+    }
+
+    public function rechargeRefund($user,$report){
+        // refund used recharge amount to user wallet
+        $refundAmount = $report->paid_amount+$report->wallet_used;
+        $user->increment('wallet',$refundAmount);
+        self::commisionManager('refund',$refundAmount,$user,$report);
     }
 
     public function giveCommision($user,$report){
@@ -78,13 +109,6 @@ class RechargeRepository
         self::commisionManager('direct',$directreferCommison,$user,$report);
         \App\Models\User::where('id',$user->indirectrefer_id)->increment('wallet',$indirectreferCommison);
         self::commisionManager('indirect',$indirectreferCommison,$user,$report);
-    }
-
-    public function rechargeRefund($user,$report){
-        // refund used recharge amount to user wallet
-        $refundAmount = $report->paid_amount+$report->wallet_used;
-        $user->increment('wallet',$refundAmount);
-        self::commisionManager('refund',$refundAmount,$user,$report);
     }
 
     public function commisionManager($type,$amount,$user,$report){

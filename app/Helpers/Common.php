@@ -1,6 +1,5 @@
 <?php
 namespace App\Helpers;
-use App\Models\Apilog;
 
 class Common{
     public static function generateReferral($length = 8){
@@ -37,9 +36,10 @@ class Common{
         $code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
+        $apilog = null;
         if(isset($data[0])){
             try {
-                Apilog::create([
+                $apilog = \App\Models\Apilog::create([
                     "api_id" => $data[0],
                     "txnid" => $data[1],
                     "response" => $response
@@ -47,7 +47,7 @@ class Common{
             } catch (\Exception $e) { }
         }
 
-        return ["response" => $response, "error" => $err, 'code' => $code];
+        return ["response" => $response, "error" => $err, 'code' => $code,'apilog' => $apilog];
     }
 
     public static function encrypt($plainText) {
