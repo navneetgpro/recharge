@@ -6,6 +6,12 @@ class Common{
         return \Str::random($length);
     }
 
+    public static function numericPlanDays($text,$string){
+        $text = "28 Days";
+        $days = str_ireplace($remove,"",$text);
+        return preg_replace('/\s+/', '', $days);
+    }
+
     public static function pctDiscount($amount,$discountPct,$object=true){
         $disAmt = ($discountPct / 100) * $amount;
         if(!$object) return $disAmt;

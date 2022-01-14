@@ -91,28 +91,30 @@ class RechargeRepository
         $report->status=$status;
         $report->apilog->status=$status;
         $report->push();
-        self::giveCommision($user,$report);
+        self::giveCommission($user,$report);
     }
 
     public function rechargeRefund($user,$report){
         // refund used recharge amount to user wallet
         $refundAmount = $report->paid_amount+$report->wallet_used;
         $user->increment('wallet',$refundAmount);
-        self::commisionManager('refund',$refundAmount,$user,$report);
+        self::walletManager('refund',$refundAmount,$user,$report);
     }
 
-    public function giveCommision($user,$report){
-        // give commision to referral users
+    public function giveCommission($user,$report){
+        // give commission to referral users
         $directreferCommison = \Helper::pctDiscount($report->total_amount,$user->level->direct_commission,false);
         $indirectreferCommison = \Helper::pctDiscount($report->total_amount,$user->level->indirect_commission,false);
         \App\Models\User::where('id',$user->directrefer_id)->increment('wallet',$directreferCommison);
-        self::commisionManager('direct',$directreferCommison,$user,$report);
+        self::walletManager('direct',$directreferCommison,$user,$report);
         \App\Models\User::where('id',$user->indirectrefer_id)->increment('wallet',$indirectreferCommison);
-        self::commisionManager('indirect',$indirectreferCommison,$user,$report);
+        self::walletManager('indirect',$indirectreferCommison,$user,$report);
     }
 
-    public function commisionManager($type,$amount,$user,$report){
-        \App\Models\Commission::create(['user_id'=>$user->id,'report_id'=>$report->id,'type'=>$type,'amount'=>$amount,'initiate'=>1]);
+    public function walletManager($type,$amount,$user,$report=null,$txntype='credit'){
+        $data = ['user_id'=>$user->id,'type'=>$type,'amount'=>$amount,'txntype'=>$txntype];
+        if($report) $data['report_id']=$report->id;
+        \App\Models\WalletRecord::create($data);
     }
 
     public function useUserWallet($discountAmount,$user,$deduct=false){

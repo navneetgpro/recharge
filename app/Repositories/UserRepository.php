@@ -12,4 +12,15 @@ class UserRepository
         return (object) ['directrefer_id'=>isset($user->id)?$user->id:1,'indirectrefer_id'=>isset($user2->id)?$user2->id:1];
     }
 
+    public function walletTransfer($amount,$from,$to){
+        try {
+            $from->decrement('wallet',$amount);
+            $to->increment('wallet',$amount);
+            RechargeRepository::walletManager('transfer',$amount,$from,null,'debit');
+            RechargeRepository::walletManager('transfer',$amount,$to,null,'credit');
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
 }

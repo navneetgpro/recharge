@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use \App\Repositories\RechargeRepository;
+use \App\Repositories\UserRepository;
 use \App\Models\Report;
 
 class ApisController extends Controller
@@ -50,39 +51,37 @@ class ApisController extends Controller
         return response()->json(['status'=>'success']);
     }
 
-    public function getPlan(Request $post)
+    public function getPlan(Request $request)
     {
-        $rules = array(
+        $rData = $request->validate([
             'type'  =>'required',
             'cricle'  =>'required',
-            'number'  =>'required',
-            'operator'  =>'required',
-        );
+            'number'  =>'required|numeric',
+            'operator'  =>'required|numeric',
+        ]);
 
-        $validate = \Myhelper::FormValidator($rules, $post);
-        if($validate != "no"){
-        	return $validate;
-        }
+        $operator = \App\Models\Operator::find($request->operator);
         $parameter['api_key']   = "2c576c-1e998a-97bd75-0738f4-76a1c1";
-        if($provider->type == "mobile"){
+        if($request->type == "mobile"){
             $parameter['type']      = "Plan_CheckV2";
         }else{
             $parameter['type']      = "Dth_Plans";
         }
         $parameter['number']    = "9073711804";
-        $parameter['operator']  = 'Jio';
-        $parameter['cricle']    = "Delhi NCR";
+        $parameter['operator']  = $operator->code1;
+        $parameter['cricle']    = $request->cricle;
 
         $url = "https://myplan.co.in/Users/apis/index.php?".http_build_query($parameter);
-        $result = \Myhelper::curl($url, "POST", "", [], "no");
+        $result = \Helper::curl($url, "POST", "", []);
         //return response()->json([$url, $result]);
         if($result['response'] != ''){
             $response = json_decode($result['response']);
+            return response()->json($response);
             
             if(isset($response->status) && $response->status == true){
                 $datas = [];
                 
-                if($provider->type == "mobile"){
+                if($request->type == "mobile"){
                     foreach($response->result as $plans){
                     $data['id'] = $plans->sms;
                     $data['recharge_talktime'] = $plans->talktime;
@@ -117,9 +116,32 @@ class ApisController extends Controller
             }
         }else{
             return response()->json([
-                'status'  => "ERR", 
+                'statuscode'  => "ERR", 
                 "message" => "Recharge Plan Not Found"
             ]);
+        }
+    }
+
+    public function walletTransfer(Request $request){
+        $rData = $request->validate([
+            'number'  =>'required|numeric',
+            'amount'  =>'required|numeric||min:0',
+        ]);
+        $user = \App\Models\User::where('phone',$request->number);
+        $authUser = auth()->user();
+        if(!$user->exists()){
+            return response()->json(["message" => "User Not found"],404);
+        }
+        $userData = $user->first();
+        if($authUser->is($userData)){
+            return response()->json(["message" => "invalid request"],400);
+        }
+
+        $transfer = UserRepository::walletTransfer($request->amount,$authUser,$userData);
+        if($transfer){
+            return response()->json(["message" => "Success"],200);
+        }else{
+            return response()->json(["message" => "something went wrong"],500);
         }
     }
 }

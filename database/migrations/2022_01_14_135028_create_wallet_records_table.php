@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCommissionsTable extends Migration
+class CreateWalletRecordsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,13 @@ class CreateCommissionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('commissions', function (Blueprint $table) {
+        Schema::create('wallet_records', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('report_id');
-            $table->enum('type', ['direct','indirect','refund']);
+            $table->unsignedBigInteger('report_id')->nullable();
+            $table->enum('type', ['direct','indirect','refund','transfer']);
             $table->decimal('amount', 5, 2);
-            $table->boolean('initiate')->default(0);
+            $table->enum('txntype',['credit','debit'])->default('credit');
             $table->timestamps();
         });
     }
@@ -31,6 +31,6 @@ class CreateCommissionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('commissions');
+        Schema::dropIfExists('wallet_records');
     }
 }

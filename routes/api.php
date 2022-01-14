@@ -20,9 +20,13 @@ Route::post('/register', 'UsersController@register');
 
 // private routes
 Route::group(['middleware'=>'auth:sanctum'],function(){
-    Route::get('/user/{id}', 'UsersController@find');
+    Route::post('/getplan', 'ApisController@getPlan');
     Route::post('/logout', 'UsersController@logout');
+    Route::get('/user/{id}', 'UsersController@find');
     Route::post('/{type}/recharge', 'RechargeController@payment');
+
+    // wallet transfer
+    Route::post('/transfer', 'ApisController@walletTransfer');
 });
 
 // fake apis
