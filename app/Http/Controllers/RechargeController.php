@@ -59,7 +59,7 @@ class RechargeController extends Controller
     public function securerehcharge(){
         $apitxn = 'secure'.time();
         $reponseSuccess = [
-            'status'=>'TXN',
+            'status'=>'TUP',
             'apitxncode'=>$apitxn,
             'messgae'=>'recharge success'
         ];
@@ -68,7 +68,7 @@ class RechargeController extends Controller
             'apitxncode'=>$apitxn,
             'messgae'=>'recharge Failed'
         ];
-        return response()->json($reponsefailed);
+        return response()->json($reponseSuccess);
     }
     public function mitrarehcharge(){
         $apitxn = 'mitra'.time();

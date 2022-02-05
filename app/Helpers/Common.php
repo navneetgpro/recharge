@@ -6,7 +6,7 @@ class Common{
         return \Str::random($length);
     }
 
-    public static function numericPlanDays($text,$string){
+    public static function numericPlanDays($text,$remove){
         $text = "28 Days";
         $days = str_ireplace($remove,"",$text);
         return preg_replace('/\s+/', '', $days);
