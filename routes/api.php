@@ -29,6 +29,9 @@ Route::group(['middleware'=>'auth:sanctum'],function(){
     Route::post('/transfer', 'ApisController@walletTransfer');
 });
 
+// public routes
+Route::get('/static/{type}', 'ApisController@staticdata');
+
 // fake apis
 Route::get('/mitrarehcharge', 'RechargeController@mitrarehcharge');
 Route::get('/securerehcharge', 'RechargeController@securerehcharge');

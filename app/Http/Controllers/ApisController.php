@@ -51,11 +51,22 @@ class ApisController extends Controller
         return response()->json(['status'=>'success']);
     }
 
+    public function staticdata(Request $request,$type){
+        $data = [];
+        if($type=="operators"){
+            $data = \App\Models\Operator::get(['id','name']);
+        }elseif($type=="circles"){
+            $data = \App\Models\Circle::get(['id','name']);
+        }
+        
+        return response()->json($data);
+    }
+
     public function getPlan(Request $request)
     {
         $rData = $request->validate([
             'type'  =>'required',
-            'cricle'  =>'required',
+            'circle'  =>'required',
             'number'  =>'required|numeric',
             'operator'  =>'required|numeric',
         ]);
@@ -69,7 +80,7 @@ class ApisController extends Controller
         }
         $parameter['number']    = "9073711804";
         $parameter['operator']  = $operator->code1;
-        $parameter['cricle']    = $request->cricle;
+        $parameter['circle']    = $request->circle;
 
         $url = "https://myplan.co.in/Users/apis/index.php?".http_build_query($parameter);
         $result = \Helper::curl($url, "POST", "", []);
