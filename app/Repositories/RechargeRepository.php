@@ -88,6 +88,7 @@ class RechargeRepository
         if($report->status!='pending' && isset($report->status)) return ;
         $status = 'success';
         if(!$user) $user = \App\Models\User::find($report->user_id);
+        $user->increment('recharge',1);
         $report->status=$status;
         $report->apilog->status=$status;
         $report->push();

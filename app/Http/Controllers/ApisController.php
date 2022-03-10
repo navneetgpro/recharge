@@ -61,7 +61,7 @@ class ApisController extends Controller
         ]);
 
         $operator = \App\Models\Operator::find($request->operator);
-        $parameter['api_key']   = "2c576c-1e998a-97bd75-0738f4-76a1c1";
+        $parameter['api_key']   = "9f96a8-1a0025-8a201a-58ab23-4bf485";
         if($request->type == "mobile"){
             $parameter['type']      = "Plan_CheckV2";
         }else{
