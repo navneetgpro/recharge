@@ -80,7 +80,7 @@ class ApisController extends Controller
         }
         $parameter['number']    = "9073711804";
         $parameter['operator']  = $operator->code1;
-        $parameter['circle']    = $request->circle;
+        $parameter['cricle']    = $request->circle;
 
         $url = "https://myplan.co.in/Users/apis/index.php?".http_build_query($parameter);
         $result = \Helper::curl($url, "POST", "", []);
