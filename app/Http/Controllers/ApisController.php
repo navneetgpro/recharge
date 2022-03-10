@@ -66,12 +66,13 @@ class ApisController extends Controller
     {
         $rData = $request->validate([
             'type'  =>'required',
-            'circle'  =>'required',
+            'circle'  =>'required|numeric',
             'number'  =>'required|numeric',
             'operator'  =>'required|numeric',
         ]);
 
         $operator = \App\Models\Operator::find($request->operator);
+        $circle = \App\Models\Circle::find($request->circle);
         $parameter['api_key']   = "9f96a8-1a0025-8a201a-58ab23-4bf485";
         if($request->type == "mobile"){
             $parameter['type']      = "Plan_CheckV2";
@@ -80,7 +81,7 @@ class ApisController extends Controller
         }
         $parameter['number']    = "9073711804";
         $parameter['operator']  = $operator->code1;
-        $parameter['cricle']    = $request->circle;
+        $parameter['cricle']    = $circle->code1;
 
         $url = "https://myplan.co.in/Users/apis/index.php?".http_build_query($parameter);
         $result = \Helper::curl($url, "POST", "", []);
