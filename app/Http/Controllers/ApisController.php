@@ -59,17 +59,22 @@ class ApisController extends Controller
             $data = \App\Models\Circle::get(['id','name']);
         }
         
-        return response()->json($data);
+        return response()->json(['statuscode'=>'txn','data'=>$data]);
     }
 
     public function getPlan(Request $request)
     {
-        $rData = $request->validate([
+        $rules = [
             'type'  =>'required',
             'circle'  =>'required|numeric',
             'number'  =>'required|numeric',
             'operator'  =>'required|numeric',
-        ]);
+        ];
+
+        $fields = \Helper::FormValidator($rules, $request);
+        if($fields != "no"){
+        	return $fields;
+        }
 
         $operator = \App\Models\Operator::find($request->operator);
         $circle = \App\Models\Circle::find($request->circle);
@@ -88,7 +93,7 @@ class ApisController extends Controller
         //return response()->json([$url, $result]);
         if($result['response'] != ''){
             $response = json_decode($result['response']);
-            return response()->json($response);
+            return response()->json(['statuscode'=>'txn','data'=>$response]);
             
             if(isset($response->status) && $response->status == true){
                 $datas = [];
@@ -135,25 +140,30 @@ class ApisController extends Controller
     }
 
     public function walletTransfer(Request $request){
-        $rData = $request->validate([
+        $rules = [
             'number'  =>'required|numeric',
             'amount'  =>'required|numeric||min:0',
-        ]);
+        ];
+
+        $fields = \Helper::FormValidator($rules, $request);
+        if($fields != "no"){
+        	return $fields;
+        }
         $user = \App\Models\User::where('phone',$request->number);
         $authUser = auth()->user();
         if(!$user->exists()){
-            return response()->json(["message" => "User Not found"],404);
+            return response()->json(['statuscode'=>'ERR',"message" => "User Not found"],400);
         }
         $userData = $user->first();
         if($authUser->is($userData)){
-            return response()->json(["message" => "invalid request"],400);
+            return response()->json(['statuscode'=>'ERR',"message" => "invalid request"],400);
         }
 
         $transfer = UserRepository::walletTransfer($request->amount,$authUser,$userData);
         if($transfer){
-            return response()->json(["message" => "Success"],200);
+            return response()->json(['statuscode'=>'TXN',"message" => "Success"],200);
         }else{
-            return response()->json(["message" => "something went wrong"],500);
+            return response()->json(['statuscode'=>'ERR',"message" => "something went wrong"],500);
         }
     }
 }

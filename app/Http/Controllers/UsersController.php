@@ -14,24 +14,31 @@ class UsersController extends Controller
     }
 
     public function login(Request $request){
-        $fields = $request->validate([
+        $rules = [
             'phone' => 'required|numeric',
             'password' => 'required|string'
-        ]);
+        ];
+
+        $fields = \Helper::FormValidator($rules, $request);
+        if($fields != "no"){
+        	return $fields;
+        }
         $userTable = User::where('phone',$request->phone);
         if(!$userTable->exists()){
-            return response()->json(['message'=>'Invalid User.'],422);
+            return response()->json(['statuscode'=>'ERR','message'=>'Invalid User.'],422);
         }
         $user = $userTable->first();
         if(!$user->active){
-            return response()->json(['message'=>'Your account is deactivated.'],422);
+            return response()->json(['statuscode'=>'ERR','message'=>'Your account is deactivated.'],422);
         }
         if(!\Helper::validateEncrypt($user->password,$request->password)){
-            return response()->json(['message'=>'Invalid login credentials.'],422);
+            return response()->json(['statuscode'=>'ERR','message'=>'Invalid login credentials.'],422);
         }
         $token = $user->createToken(env('SANCTUM_TOKEN'))->plainTextToken;
 
         return response()->json([
+            'statuscode'=>'TXN',
+            'message'=>'login success',
             'user'=>$user->filter(),
             'token'=>$token
         ],200);
@@ -43,13 +50,18 @@ class UsersController extends Controller
     }
 
     public function register(Request $request){
-        $fields = $request->validate([
+        $rules = [
             'name' => 'required|string',
             'phone' => 'required|numeric|unique:users',
             'email' => 'nullable|string|email',
             'referral' => 'required|string',
             'password' => 'required|string|confirmed'
-        ]);
+        ];
+
+        $fields = \Helper::FormValidator($rules, $request);
+        if($fields != "no"){
+        	return $fields;
+        }
 
         $referralUser = $this->userRepository->referralUser($request->referral,true);
 
@@ -69,6 +81,8 @@ class UsersController extends Controller
         $token = $user->createToken(env('SANCTUM_TOKEN'))->plainTextToken;
 
         return response()->json([
+            'statuscode'=>'TXN',
+            'message'=>'register success',
             'user'=>$user->filter(),
             'token'=>$token
         ],201);

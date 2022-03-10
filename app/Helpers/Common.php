@@ -96,4 +96,20 @@ class Common{
         }
         return $binString;
     }
+
+    public static function FormValidator($rules, $post)
+    {
+        $validator = \Validator::make($post->all(), array_reverse($rules));
+        if ($validator->fails()) {
+            foreach ($validator->errors()->messages() as $key => $value) {
+                $error = $value[0];
+            }
+            return response()->json(array(
+                'statuscode' => 'ERR',  
+                'message' => $error
+            ),400);
+        }else{
+            return "no";
+        }
+    }
 }
