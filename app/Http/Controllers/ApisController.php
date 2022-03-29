@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use \App\Repositories\RechargeRepository;
 use \App\Repositories\UserRepository;
+use \App\Models\WalletRecord;
 use \App\Models\Report;
 
 class ApisController extends Controller
@@ -165,5 +166,20 @@ class ApisController extends Controller
         }else{
             return response()->json(['statuscode'=>'ERR',"message" => "something went wrong"],500);
         }
+    }
+
+    public function recharges(Request $request,$type){
+        $user_id = auth()->user()->id;
+        $reports = Report::where('user_id',$user_id)->where('product',$type)->where('via','app')->orderBy('id','desc')->paginate();
+        $reports->getCollection()->transform(function($report) {
+            return $report->MyFilter();
+        });
+        return response()->json(['statuscode'=>'TXN',"data" => $reports],200);
+    }
+
+    public function walletentries(Request $request){
+        $user_id = auth()->user()->id;
+        $records = WalletRecord::where('user_id',$user_id)->orderBy('id','desc')->paginate();
+        return response()->json(['statuscode'=>'TXN',"data" => $records],200);
     }
 }

@@ -27,6 +27,10 @@ Route::group(['middleware'=>'auth:sanctum'],function(){
 
     // wallet transfer
     Route::post('/transfer', 'ApisController@walletTransfer');
+
+    // Reports
+    Route::get('/report/wallet', 'ApisController@walletentries');
+    Route::get('/report/{type}', 'ApisController@recharges');
 });
 
 // public routes

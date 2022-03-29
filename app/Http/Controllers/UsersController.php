@@ -39,7 +39,7 @@ class UsersController extends Controller
         return response()->json([
             'statuscode'=>'TXN',
             'message'=>'login success',
-            'user'=>$user->filter(),
+            'user'=>$user->Myfilter(),
             'token'=>$token
         ],200);
     }
@@ -83,7 +83,7 @@ class UsersController extends Controller
         return response()->json([
             'statuscode'=>'TXN',
             'message'=>'register success',
-            'user'=>$user->filter(),
+            'user'=>$user->Myfilter(),
             'token'=>$token
         ],201);
     }

@@ -48,7 +48,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function filter(){
+    public function Myfilter(){
         return [
             'id'=>$this->id,
             'name'=>$this->name,
@@ -57,10 +57,23 @@ class User extends Authenticatable
             'directrefer_id'=>$this->directrefer_id,
             'indirectrefer_id'=>$this->indirectrefer_id,
             'referral_code'=>$this->referral_code,
+            'wallet'=>$this->wallet,
+            'level_id'=>$this->level_id,
+            'recharge'=>$this->recharge,
+            'refers'=>$this->refers,
+            'created_at'=>$this->created_at
         ];
     }
 
     public function level(){
         return $this->belongsTo(Level::class);
     }
+
+    // public function walletrecord(){
+    //     return $this->hasMany(WalletRecord::class);
+    // }
+
+    // public function reports(){
+    //     return $this->hasMany(Report::class);
+    // }
 }

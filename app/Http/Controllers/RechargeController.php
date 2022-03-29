@@ -10,14 +10,20 @@ class RechargeController extends Controller
 {
     public function payment(Request $request,$type="mobile"){
         $request['type']=$type;
-        $rData = $request->validate([
+        $rules = [
             'phone' => 'required|numeric',
             'type' => 'required|in:mobile,dth',
             'number' => 'required_if:type,==,dth|nullable',
             'operator_id' => 'required',
             'amount' => 'required|numeric',
             'lat_lon' => 'required',
-        ]);
+        ];
+
+        $fields = \Helper::FormValidator($rules, $request);
+        if($fields != "no"){
+        	return $fields;
+        }
+        $rData = $request->validate($rules);
 
         // do {
         //     $txnid = 'REG'.round(microtime(true)*1000);
@@ -53,13 +59,13 @@ class RechargeController extends Controller
         }elseif($response->status == "failed"){
             RechargeRepository::ifRechargefail($report,$user);
         }
-        return response()->json($report);
+        return response()->json(['statuscode'=>'TXN','data'=>$report->Myfilter()]);
     }
 
     public function securerehcharge(){
         $apitxn = 'secure'.time();
         $reponseSuccess = [
-            'status'=>'TUP',
+            'status'=>'TXN',
             'apitxncode'=>$apitxn,
             'messgae'=>'recharge success'
         ];
